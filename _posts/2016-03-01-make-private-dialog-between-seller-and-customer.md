@@ -2,7 +2,6 @@
 layout: post
 title:  Denshobato - Private messaging between models
 date:   2016-03-01 03:35:30 +0300
-categories: denshobato ruby rails tutorial gem
 ---
 
 ![alt text](http://i.imgur.com/NuhMPrg.png "Denshobato")

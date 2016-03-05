@@ -9,7 +9,7 @@
 title: My Ruby notices
 email: xid25x@gmail.com
 author: Eugene Domosedov
-baseurl: "" # the subpath of your site, e.g. /blog
+baseurl:
 github_username: ID25
 
 # Build settings
