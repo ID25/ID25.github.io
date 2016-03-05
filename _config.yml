@@ -1,0 +1,20 @@
+# Welcome to Jekyll!
+#
+# This config file is meant for settings that affect your whole blog, values
+# which you are expected to set up once and rarely need to edit after that.
+# For technical reasons, this file is *NOT* reloaded automatically when you use
+# 'jekyll serve'. If you change this file, please restart the server process.
+
+# Site settings
+title: My Ruby notices
+email: xid25x@gmail.com
+author: Eugene Domosedov
+baseurl: "" # the subpath of your site, e.g. /blog
+github_username: ID25
+
+# Build settings
+markdown: kramdown
+
+gems: [jekyll-paginate]
+
+paginate: 10
