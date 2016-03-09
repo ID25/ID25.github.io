@@ -12,7 +12,7 @@ date:   2016-03-01 03:35:30 +0300
 
 ### Part 1
 
-Deshobato is a Rails gem that helps models communicate with each other. It gives simple api for creating a complete conversation system. You can create conversation with any model. Denshobato provides api methods for making conversations, messages and BlackList and Trash. It also provides Helper methods for controller and view. It has a built-in chat panel and a particular documentation and you can use it any time something is unclear.
+Denshobato is a Rails gem that helps models communicate with each other. It gives simple api for creating a complete conversation system. You can create conversation with any model. Denshobato provides api methods for making conversation, messages, blacklists and trash. It also provides Helper methods for controller and view.
 
 In this tutorial, we'll create messaging system from scratch. A most part of work Denshobato gem will take over.
 
