@@ -1,214 +1,27 @@
 ---
 layout: post
-title:  Denshobato - Private messaging between models
-date:   2016-03-01 03:35:30 +0300
+title:  Denshobato - Private messaging between models (PART 2)
+date:   2016-03-02 03:00:30 +0300
 ---
 
 ![alt text](http://i.imgur.com/NuhMPrg.png "Denshobato")
 
-## Create messaging system between seller and customer.
+### Create messaging system between Reseller and Customer.
 
-Deshobato is a Rails gem that helps models communicate with each other. It gives simple api for creating a complete conversation system. You can create conversation with any model. Denshobato provides api methods for making conversations, messages and BlackList and Trash. It also provides Helper methods for controller and view. It has a built-in chat panel and a particular documentation and you can use it any time something is unclear.
+[Denshobato Github Repository](https://github.com/ID25/denshobato){:target="_blank"}
 
-In this tutorial, we'll create messaging system from scratch. A most part of work Denshobato gem will take over.
+### Part 2
 
-{% highlight bash %}
-$ rails new shop
-{% endhighlight %}
+In [PART 1]({% post_url 2016-03-01-make-private-dialog-between-reseller-and-customer-part-1 %}) we've built a basic app with reseller and customer models, devise authentication and index templates to list our models. In part 2 we’ll make the rest of our app.
 
-Add bootstrap-sass gem for styles, Devise for quick users authentication, slim-rails for templates, and Denshobato for messaging.
+### In Part 2:
 
-{% highlight ruby %}
-gem 'bootstrap-sass'
-gem 'devise'
-gem 'slim-rails'
-gem 'denshobato'
-{% endhighlight %}
-run ```bundle install```
+* We'll create conversations
+* Send messages to conversations
+* Send conversations to Trash
+* Add users to BlackList
 
-Install Devise
-
-{% highlight shell %}
-$ rails g devise:install
-
-$ rails g devise Seller   first_name:string last_name:string
-
-$ rails g devise Customer first_name:string last_name:string
-{% endhighlight %}
-
-And install Denshobato
-
-{% highlight shell %}
-$ rails g denshobato:install
-{% endhighlight %}
-
-Now run ```rake db:migrate```
-
-Next, we need to set up a basic authentication for seller and customer model.
-
-Add this helpful method to ```ApplicationController```
-
-{% highlight ruby %}
-class ApplicationController < ActionController::Base
-# ....
-  private
-
-  def current_account
-    current_seller || current_customer
-  end
-end
-{% endhighlight %}
-
-And to ```ApplicationHelper```
-
-{% highlight ruby %}
-module ApplicationHelper
-  def current_account
-    current_seller || current_customer
-  end
-
-  def current_account_signed_in?
-    seller_signed_in? || customer_signed_in?
-  end
-end
-{% endhighlight %}
-
-Generate ```WelcomeController```, with ```home``` action for root path.
-
-{% highlight shell %}
-rails g controller Welcome home
-{% endhighlight %}
-
-Add route to root path.
-```routes.rb```
-{% highlight ruby %}
-root 'welcome#home'
-{% endhighlight %}
-
-Add this to ```welcome/home.html.slim```
-
-{% highlight slim %}
-h1.text-danger.text-center Welcome to the Shop!
-- if current_account_signed_in?
-  h2.text-success.text-center = "Hello, #{current_account.try(:email)}"
-- else
-  hr
-  .row.text-center
-    .col-md-4.col-md-offset-2
-      = link_to 'Register as Seller', :new_seller_registration,
-        class: 'btn btn-primary'
-      hr
-      = link_to 'Sign In as Seller', :new_seller_session,
-        class: 'btn btn-primary'
-    .col-md-4
-      = link_to 'Register as Customer', :new_customer_registration,
-        class: 'btn btn-success'
-      hr
-      = link_to 'Sign In as Customer', :new_customer_session,
-        class: 'btn btn-success'
-
-{% endhighlight %}
-
-Next, add header to our application layout and import bootstrap styles, if you haven`t done it yet.
-
-{% highlight erb %}
-<div class="container">
-  <%= render 'layouts/header' %>
-  <%= yield %>
-</div>
-{% endhighlight %}
-
-{% highlight slim %}
-// => _header.html.slim
-
-nav.navbar.navbar-default
-  .container-fluid
-    .navbar-header
-      button.navbar-toggle.collapsed aria-controls="navbar"
-        aria-expanded="false" data-target="#navbar" data-toggle="collapse" type="button"
-        span.sr-only Toggle navigation
-        span.icon-bar
-        span.icon-bar
-        span.icon-bar
-      = link_to 'Shop', :root, class: 'navbar-brand'
-    #navbar.navbar-collapse.collapse
-        - if current_account_signed_in?
-          = render 'layouts/account_header'
-{% endhighlight %}
-
-As long as we have two different models, for sake of brevity, we'll use ```devise_url_helper```, which generates correct route, obviously based on your model. name.
-
-{% highlight slim %}
-// => 'layouts/_account_header.html.slim'
-
-= render 'layouts/links'
-ul.nav.navbar-nav.navbar-right
-  li = link_to 'Edit Profile',
-    devise_url_helper(:edit, current_account, :registration)
-  li = link_to 'Log out',
-    devise_url_helper(:destroy, current_account, :session), method: :delete
-{% endhighlight %}
-
-In Links partial
-{% highlight slim %}
-// => layouts/_links.html.slim
-
-ul.nav.navbar-nav
-  li = link_to 'Home',  :root
-  li = link_to 'Sellers', :sellers
-  li = link_to 'Customers', :customers
-{% endhighlight %}
-
-It should look like this
-![alt text](http://i.imgur.com/EERnAZ2.png "Denshobato")
-
-Next, we create the seller's controller and customer's controller.
-
-Don`t forget about routes
-{% highlight ruby %}
-resources :sellers, :customers
-{% endhighlight %}
-
-{% highlight ruby %}
-class SellersController < ApplicationController
-  def index
-    @sellers = Seller.all
-  end
-end
-{% endhighlight %}
-
-{% highlight slim %}
-// => sellers/index.html.slim
-
-- @sellers.each do |seller|
-  = link_to seller.email, seller if current_account != seller
-  hr
-{% endhighlight %}
-
-Make the same with Customer (controller and index view)
-
-Let's create a few sellers and customers
-
-go to ```rails c```
-
-{% highlight ruby %}
-Seller.create(email: 'seller_john@gmail.com', password: 'password123',
-password_confirmation: 'password123', first_name: 'John', last_name: 'Doe')
-
-Seller.create(email: 'seller_steve@gmail.com', password: 'password123',
-password_confirmation: 'password123', first_name: 'Steve', last_name: 'Smith')
-
-Customer.create(email: 'customer_mark@gmail.com', password: 'password123',
-password_confirmation: 'password123', first_name: 'Mark', last_name: 'Paul')
-
-Customer.create(email: 'customer_fred@gmail.com', password: 'password123',
-password_confirmation: 'password123', first_name: 'Fred', last_name: 'Munch')
-{% endhighlight %}
-
-Okay, looks like we bootstraped everything we need at this point.
-
-We ready  to set up messaging system for our seller and customer.
-Go to Seller and Customer Models.
+Go to Reseller and Customer Models.
 
 Add ```denshobato_for :your_class``` to these models.
 This method does a lot of things - sets up associations and adds useful methods for you.
@@ -220,8 +33,8 @@ denshobato_for :your_class
 Add it to your models.
 
 {% highlight ruby %}
-class Seller < ActiveRecord::Base
-  denshobato_for :seller
+class Reseller < ActiveRecord::Base
+  denshobato_for :reseller
 end
 
 class Customer < ActiveRecord::Base
@@ -229,21 +42,21 @@ class Customer < ActiveRecord::Base
 end
 {% endhighlight %}
 
-Go to Sellers and Customers contoller.
+Go to Resellers and Customers contoller.
 Add to ```index``` action conversation builder for our form.
 
 {% highlight ruby %}
 @conversation = current_account.hato_conversations.build
 {% endhighlight %}
 
-Add this form to your index page, which shows all your sellers and customers.
+Add this form to your index page, which shows all your resellers and customers.
 {% highlight slim %}
-// => sellers/index.html.slim
+// => resellers/index.html.slim
 
-- @sellers.each do |seller|
-  = link_to seller.email, seller if current_account != seller
+- @resellers.each do |reseller|
+  = link_to reseller.email, reseller if current_account != reseller
   = form_for @conversation, url: :conversations do |form|
-    = fill_conversation_form(form, seller)
+    = fill_conversation_form(form, reseller)
     = form.submit 'Start Conversation', class: 'btn btn-primary'
   hr
 {% endhighlight %}
@@ -252,16 +65,16 @@ Add this form to your index page, which shows all your sellers and customers.
 
 Don't forget to add route for conversations resource ```:conversations```
 
-On a seller's page (if you're signed as a seller) you can see an extra button for creating conversation with yourself. There is also a useful helper which can hide this button.
+On a reseller's page (if you're signed as a reseller) you can see an extra button for creating conversation with yourself. There is also a useful helper which can hide this button.
 
 {% highlight slim %}
-- if can_create_conversation?(current_account, seller)
+- if can_create_conversation?(current_account, reseller)
     = form_for @conversation, url: :conversations do |form|
-      = fill_conversation_form(form, seller)
+      = fill_conversation_form(form, reseller)
       = form.submit 'Start Conversation', class: 'btn btn-primary'
 {% endhighlight %}
 
-Add this to both forms (for seller and customer).
+Add this to both forms (for reseller and customer).
 
 Okay, now if we click the button, we got an error ```uninitialized constant ConversationsController```
 
@@ -388,27 +201,26 @@ Notice: We use ```user_in_conversation?(current_account, @conversation)``` metho
 {% highlight ruby %}
 def show
   @conversation = Denshobato::Conversation.find(params[:id])
-  redirect_to :conversations, notice: 'You can`t join this conversation'
-    unless user_in_conversation?(current_account, @conversation)
+  redirect_to :conversations, notice: 'You can`t join this conversation' unless user_in_conversation?(current_account, @conversation)
 
   @message_form = current_account.hato_messages.build
   @messages     = @conversation.messages
 end
 {% endhighlight %}
 
-If we go back to seller's or customer's index page, we can still see start conversation button, even if the conversation is already started. Let`s hide it.
+If we go back to reseller's or customer's index page, we can still see start conversation button, even if the conversation is already started. Let`s hide it.
 
-In our ```index.html.slim``` templates for seller and customer, use ```conversation_exists?``` method.
+In our ```index.html.slim``` templates for reseller and customer, use ```conversation_exists?``` method.
 
 {% highlight slim %}
-- @sellers.each do |seller|
-  = link_to seller.email, seller if current_account != seller
-  - unless conversation_exists?(current_account, seller)
-    - if can_create_conversation?(current_account, seller)
+- @resellers.each do |reseller|
+  = link_to reseller.email, reseller if current_account != reseller
+  - unless conversation_exists?(current_account, reseller)
+    - if can_create_conversation?(current_account, reseller)
       = form_for @conversation, url: :conversations do |form|
-        = fill_conversation_form(form, seller)
+        = fill_conversation_form(form, reseller)
         = form.submit 'Start Conversation', class: 'btn btn-primary'
-
+  hr
 {% endhighlight %}
 
 Good, now go to conversation index page, we'll use some view helpers to show our recipient's name and avatar. You will also see the last message of a shown conversation.
@@ -422,13 +234,16 @@ Good, now go to conversation index page, we'll use some view helpers to show our
 
   = interlocutor_image(room.messages.last.try(:author),
     :user_avatar, 'img-circle')
-  p = "Last message from: #{message_from(room.messages.last, :first_name, :last_name)}"
+  - if room.messages.last.present?
+    p = "Last message from: #{message_from(room.messages.last, :first_name, :last_name)}"
   = button_to 'Remove Conversation', conversation_path(room),
     method: :delete, class: 'btn btn-danger'
   hr
 {% endhighlight %}
 
 It should look like this.
+
+Of course, your models should have an image url, and at least one message in conversation
 
 ![alt text](http://i.imgur.com/Jr8iMzr.png "Denshobato")
 
@@ -487,7 +302,8 @@ And back to our index view, add this under conversations.
 - if @trash.any?
   h1 Trash
   - @trash.each do |room|
-    = link_to "Conversation with #{room.recipient.full_name}",
+    = link_to "Conversation with #{interlocutor_info(room.recipient,
+    :first_name, :last_name)}",
       conversation_path(room)
     = button_to 'Remove Conversation', conversation_path(room),
       method: :delete, class: 'btn btn-danger'
@@ -559,10 +375,8 @@ Okay, we added these two buttons - add to black list and remove, - and helpers t
 Go to ```routes.rb``` and define routes for these actions.
 
 {% highlight ruby %}
-post :black_list, to: 'blacklists#add_to_blacklist',
-  as: :black_list
-post :remove_from_blacklist, to: 'blacklists#remove_from_blacklist',
-  as: :remove_from_blacklist
+post :black_list, to: 'blacklists#add_to_blacklist', as: :black_list
+post :remove_from_blacklist, to: 'blacklists#remove_from_blacklist', as: :remove_from_blacklist
 {% endhighlight %}
 
 Create ```BlacklistsController```
@@ -587,8 +401,8 @@ def blacklist
 end
 {% endhighlight %}
 
-We ```define_method``` again for very similar methods.
+We use ```define_method``` again for very similar methods.
 Now, it looks as it should look. Feel free to customize it, e.g, add Mailer, when you send message.
-When seller sends message to customer, we can also send a notification to customer's email. Like a "You have a new message from John Doe..." etc. If something is unclear, read documentation on the [Denshobato  repo](https://github.com/ID25/rails_emoji_picker)
+When reseller sends message to customer, we can also send a notification to customer's email. Like a "You have a new message from John Doe..." etc. If something is unclear, read documentation on the [Denshobato  repo](https://github.com/ID25/denshobato)
 
 Thanks for reading.

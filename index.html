@@ -13,7 +13,7 @@ layout: default
           <a class="post-link" href="{{ post.url | prepend: site.baseurl }}">{{ post.title }}</a>
         </h2>
         {% if post.content.size > 2000 %}
-          {{ post.content | truncatewords: 72 }}
+          {{ post.content | truncatewords: 96 }}
           <a href="{{ post.url }}">Read more...</a>
         {% else %}
           {{ post.content }}
