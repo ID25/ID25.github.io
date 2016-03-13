@@ -12,7 +12,7 @@ date:   2016-03-02 03:00:30 +0300
 
 ### Part 2
 
-In [PART 1]({% post_url 2016-03-01-make-private-dialog-between-reseller-and-customer-part-1 %}) we've built a basic app with reseller and customer models, devise authentication and index templates to list our models. In part 2 we’ll make the rest of our app.
+In [PART 1]({% post_url 2016-03-01-make-private-dialog-between-reseller-and-customer-part-1 %}) we built a basic app with reseller and customer models, devise authentication and index templates to list our models. In part 2 we’ll make the rest of our app.
 
 ### In Part 2:
 
@@ -355,7 +355,7 @@ You can add model to your blacklist, blocked model can't start conversation with
         = form_for @conversation, url: :conversations do |form|
           = fill_conversation_form(form, customer)
           = form.submit 'Start Conversation', class: 'btn btn-primary'
-    hr
+  hr
 
 {% endhighlight %}
 
